@@ -1,0 +1,47 @@
+{"level":"info","message":"Received request for all songs"}
+{"level":"info","message":"Received request for all songs"}
+{"level":"info","message":"Received request for all songs"}
+{"level":"info","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T18:25:16.597+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T18:34:57.056+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T18:35:23.299+0600","message":"Received request for CreateSong","request":{"title":"Unknown T - Wonderland ft. M Huncho","singers":"Unknown T, M Huncho","duration":3.1,"lyricsExists":true}}
+{"level":"info","timestamp":"2022-03-12T19:10:46.595+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T19:11:08.852+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T19:13:18.229+0600","message":"Received request for CreateSong","request":{"title":"Unknown T - Wonderland ft. M Huncho","artists":[{"name":"Unknown T","age":27},{"name":"M Huncho","age":35}],"duration":3.1,"lyricsExists":true}}
+{"level":"info","timestamp":"2022-03-12T20:23:35.009+0600","message":"Received request for CreateSong","request":{"title":"M Huncho x Dutchavelli - Burning [Music Video] | GRM Daily","duration":3.02,"lyricsExists":true}}
+{"level":"info","timestamp":"2022-03-12T20:24:13.846+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T20:25:41.238+0600","message":"Received request for CreateArtist","request":{"songId":"fb355c04-a98a-4c4f-b07f-b26e28487d78","name":"M Huncho","age":35}}
+{"level":"info","timestamp":"2022-03-12T20:26:22.121+0600","message":"Received request for CreateArtist","request":{"songId":"fb355c04-a98a-4c4f-b07f-b26e28487d78","name":"Dutchavelli","age":29}}
+{"level":"info","timestamp":"2022-03-12T20:26:45.899+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T20:28:14.213+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T20:51:35.374+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T20:53:20.210+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T20:54:21.293+0600","message":"Received request for all GetSongByID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T20:54:21.294+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:01:25.790+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:11:28.159+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:11:28.161+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:12:20.610+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:12:20.611+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:12:56.643+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:12:56.644+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:14:29.666+0600","message":"Received request for CreateSong","request":{"title":"Stop Trying to be God","duration":5.38,"lyricsExists":true}}
+{"level":"info","timestamp":"2022-03-12T21:15:59.563+0600","message":"Received request for CreateArtist","request":{"songId":"63fc6696-5639-4331-bfaa-ce0584648e3b","name":"Travis Scott","age":30}}
+{"level":"info","timestamp":"2022-03-12T21:16:20.925+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:16:20.926+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-12T21:16:20.927+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:16:54.225+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:16:54.225+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-12T21:16:54.227+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:16:59.895+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:16:59.896+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-12T21:16:59.897+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:17:07.943+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:17:07.944+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-12T21:17:07.945+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:17:12.619+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:17:12.620+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-12T21:17:12.621+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-12T21:17:18.149+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-12T21:17:18.150+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-12T21:17:18.152+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}

@@ -1,0 +1,41 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Song {
+  id: ID!
+  title: String!
+  duration: Float!
+  lyricsExists: Boolean!
+  artists: [Artist!]!
+}
+
+type Artist {
+  id: ID!
+  name: String!
+  age: Int!
+}
+
+type Query {
+  songs: [Song!]!
+  getSongById(input: ID!): Song!
+  getArtistsBySongId(input: ID!): [Artist!]!
+}
+
+input NewSong {
+  title: String!
+  duration: Float!
+  lyricsExists: Boolean!
+}
+
+input NewArtist {
+  songId: ID!
+  name: String!
+  age: Int!
+}
+
+
+type Mutation {
+  createSong(input: NewSong!): Song!
+  createArtist(input: NewArtist!): Artist!
+}
