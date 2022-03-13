@@ -55,9 +55,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetArtistsBySongID func(childComplexity int, input string) int
-		GetSongByID        func(childComplexity int, input string) int
-		Songs              func(childComplexity int) int
+		ArtistsBySongID func(childComplexity int, input string) int
+		SongByID        func(childComplexity int, input string) int
+		Songs           func(childComplexity int) int
 	}
 
 	Song struct {
@@ -75,8 +75,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Songs(ctx context.Context) ([]*model.Song, error)
-	GetSongByID(ctx context.Context, input string) (*model.Song, error)
-	GetArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error)
+	SongByID(ctx context.Context, input string) (*model.Song, error)
+	ArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error)
 }
 
 type executableSchema struct {
@@ -139,29 +139,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateSong(childComplexity, args["input"].(model.NewSong)), true
 
-	case "Query.getArtistsBySongId":
-		if e.complexity.Query.GetArtistsBySongID == nil {
+	case "Query.artistsBySongId":
+		if e.complexity.Query.ArtistsBySongID == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getArtistsBySongId_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_artistsBySongId_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetArtistsBySongID(childComplexity, args["input"].(string)), true
+		return e.complexity.Query.ArtistsBySongID(childComplexity, args["input"].(string)), true
 
-	case "Query.getSongById":
-		if e.complexity.Query.GetSongByID == nil {
+	case "Query.songById":
+		if e.complexity.Query.SongByID == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getSongById_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_songById_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetSongByID(childComplexity, args["input"].(string)), true
+		return e.complexity.Query.SongByID(childComplexity, args["input"].(string)), true
 
 	case "Query.songs":
 		if e.complexity.Query.Songs == nil {
@@ -289,8 +289,8 @@ type Artist {
 
 type Query {
   songs: [Song!]!
-  getSongById(input: ID!): Song!
-  getArtistsBySongId(input: ID!): [Artist!]!
+  songById(input: ID!): Song!
+  artistsBySongId(input: ID!): [Artist!]!
 }
 
 input NewSong {
@@ -363,7 +363,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getArtistsBySongId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_artistsBySongId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -378,7 +378,7 @@ func (ec *executionContext) field_Query_getArtistsBySongId_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getSongById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_songById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -655,7 +655,7 @@ func (ec *executionContext) _Query_songs(ctx context.Context, field graphql.Coll
 	return ec.marshalNSong2ᚕᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐSongᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getSongById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_songById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -672,7 +672,7 @@ func (ec *executionContext) _Query_getSongById(ctx context.Context, field graphq
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getSongById_args(ctx, rawArgs)
+	args, err := ec.field_Query_songById_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -680,7 +680,7 @@ func (ec *executionContext) _Query_getSongById(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetSongByID(rctx, args["input"].(string))
+		return ec.resolvers.Query().SongByID(rctx, args["input"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -697,7 +697,7 @@ func (ec *executionContext) _Query_getSongById(ctx context.Context, field graphq
 	return ec.marshalNSong2ᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐSong(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getArtistsBySongId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_artistsBySongId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -714,7 +714,7 @@ func (ec *executionContext) _Query_getArtistsBySongId(ctx context.Context, field
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getArtistsBySongId_args(ctx, rawArgs)
+	args, err := ec.field_Query_artistsBySongId_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -722,7 +722,7 @@ func (ec *executionContext) _Query_getArtistsBySongId(ctx context.Context, field
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetArtistsBySongID(rctx, args["input"].(string))
+		return ec.resolvers.Query().ArtistsBySongID(rctx, args["input"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2400,7 +2400,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "getSongById":
+		case "songById":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -2409,7 +2409,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getSongById(ctx, field)
+				res = ec._Query_songById(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2423,7 +2423,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "getArtistsBySongId":
+		case "artistsBySongId":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -2432,7 +2432,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getArtistsBySongId(ctx, field)
+				res = ec._Query_artistsBySongId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

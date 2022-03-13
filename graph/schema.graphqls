@@ -18,8 +18,8 @@ type Artist {
 
 type Query {
   songs: [Song!]!
-  getSongById(input: ID!): Song!
-  getArtistsBySongId(input: ID!): [Artist!]!
+  songById(input: ID!): Song!
+  artistsBySongId(input: ID!): [Artist!]!
 }
 
 input NewSong {

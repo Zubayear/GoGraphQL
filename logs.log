@@ -45,3 +45,15 @@
 {"level":"info","timestamp":"2022-03-12T21:17:18.149+0600","message":"Received request for all songs"}
 {"level":"info","timestamp":"2022-03-12T21:17:18.150+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
 {"level":"info","timestamp":"2022-03-12T21:17:18.152+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-13T14:54:01.758+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-13T14:54:01.773+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-13T14:54:01.776+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-13T14:56:58.595+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-13T14:56:58.596+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-13T14:56:58.597+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-13T14:57:36.307+0600","message":"Received request for all GetSongByID","request":"666"}
+{"level":"info","timestamp":"2022-03-13T14:57:54.906+0600","message":"Received request for all songs"}
+{"level":"info","timestamp":"2022-03-13T14:57:54.909+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-13T14:57:54.910+0600","message":"Received request for all GetArtistsBySongID","request":"fb355c04-a98a-4c4f-b07f-b26e28487d78"}
+{"level":"info","timestamp":"2022-03-13T14:58:25.140+0600","message":"Received request for all GetSongByID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}
+{"level":"info","timestamp":"2022-03-13T14:58:25.143+0600","message":"Received request for all GetArtistsBySongID","request":"63fc6696-5639-4331-bfaa-ce0584648e3b"}

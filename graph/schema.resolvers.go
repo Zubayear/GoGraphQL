@@ -60,7 +60,7 @@ func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
 	}
 	var songsToReturn []*model.Song
 	for _, song := range songsFromRepo {
-		allArtistsBySongId, err := r.GetArtistsBySongID(ctx, song.ID.String())
+		allArtistsBySongId, err := r.ArtistsBySongID(ctx, song.ID.String())
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +77,7 @@ func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
 	return songsToReturn, nil
 }
 
-func (r *queryResolver) GetSongByID(ctx context.Context, input string) (*model.Song, error) {
+func (r *queryResolver) SongByID(ctx context.Context, input string) (*model.Song, error) {
 	r._logger.Info("Received request for all GetSongByID", zap.Any("request", input))
 	songId, err := uuid.Parse(input)
 	if err != nil {
@@ -87,7 +87,7 @@ func (r *queryResolver) GetSongByID(ctx context.Context, input string) (*model.S
 	if err != nil {
 		return nil, err
 	}
-	allArtistsBySongId, err := r.GetArtistsBySongID(ctx, input)
+	allArtistsBySongId, err := r.ArtistsBySongID(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (r *queryResolver) GetSongByID(ctx context.Context, input string) (*model.S
 	return songs, nil
 }
 
-func (r *queryResolver) GetArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error) {
+func (r *queryResolver) ArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error) {
 	r._logger.Info("Received request for all GetArtistsBySongID", zap.Any("request", input))
 	songId, err := uuid.Parse(input)
 	if err != nil {
@@ -129,53 +129,6 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) GetArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error) {
-	r._logger.Info("Received request for all GetArtistsBySongID", zap.Any("request", input))
-	songId, err := uuid.Parse(input)
-	if err != nil {
-		return nil, fmt.Errorf("failed parsing songId: %w", err)
-	}
-	artistsFromRepo, err := r.songRepo.GetArtistsBySongId(ctx, songId)
-	if err != nil {
-		return nil, err
-	}
-	var artistsToReturn []*model.Artist
-	for _, artist := range artistsFromRepo {
-		mappedArtist := &model.Artist{}
-		mapArtist(artist, mappedArtist)
-		artistsToReturn = append(artistsToReturn, mappedArtist)
-	}
-	return artistsToReturn, nil
-}
-func (r *mutationResolver) GetSongByID(ctx context.Context, input string) (*model.Song, error) {
-	r._logger.Info("Received request for all GetSongByID", zap.Any("request", input))
-	songId, err := uuid.Parse(input)
-	if err != nil {
-		return nil, fmt.Errorf("failed parsing songId: %w", err)
-	}
-	songFromRepo, err := r.songRepo.GetSongById(ctx, songId)
-	if err != nil {
-		return nil, err
-	}
-	allArtistsBySongId, err := r.GetArtistsBySongID(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-	songs := &model.Song{
-		ID:           songFromRepo.ID.String(),
-		Title:        songFromRepo.Title,
-		Duration:     songFromRepo.Duration,
-		LyricsExists: songFromRepo.LyricsExits,
-		Artists:      allArtistsBySongId,
-	}
-	return songs, nil
-}
 func mapArtist(src *ent.Artist, dst *model.Artist) {
 	dst.ID = src.ID.String()
 	dst.Name = src.Name
