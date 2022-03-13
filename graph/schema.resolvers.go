@@ -15,13 +15,13 @@ import (
 )
 
 func (r *mutationResolver) CreateSong(ctx context.Context, input model.NewSong) (*model.Song, error) {
-	r._logger.Info("Received request for CreateSong", zap.Any("request", input))
+	r.Logger.Info("Received request for CreateSong", zap.Any("request", input))
 	songToSave := &ent.Song{
 		Title:       input.Title,
 		Duration:    input.Duration,
 		LyricsExits: input.LyricsExists,
 	}
-	songToFromRepo, err := r.Resolver.songRepo.AddSong(ctx, songToSave)
+	songToFromRepo, err := r.Resolver.SongRepo.AddSong(ctx, songToSave)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (r *mutationResolver) CreateSong(ctx context.Context, input model.NewSong) 
 }
 
 func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArtist) (*model.Artist, error) {
-	r._logger.Info("Received request for CreateArtist", zap.Any("request", input))
+	r.Logger.Info("Received request for CreateArtist", zap.Any("request", input))
 	artistToSave := &ent.Artist{
 		Name: input.Name,
 		Age:  input.Age,
@@ -40,7 +40,7 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArti
 	if err != nil {
 		return nil, fmt.Errorf("failed parsing songId: %w", err)
 	}
-	artistFromRepo, err := r.songRepo.AddArtist(ctx, artistToSave, songId)
+	artistFromRepo, err := r.SongRepo.AddArtist(ctx, artistToSave, songId)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +53,8 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArti
 }
 
 func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
-	r._logger.Info("Received request for all songs")
-	songsFromRepo, err := r.songRepo.GetSongs(ctx)
+	r.Logger.Info("Received request for all songs")
+	songsFromRepo, err := r.SongRepo.GetSongs(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -78,12 +78,12 @@ func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
 }
 
 func (r *queryResolver) SongByID(ctx context.Context, input string) (*model.Song, error) {
-	r._logger.Info("Received request for all GetSongByID", zap.Any("request", input))
+	r.Logger.Info("Received request for all GetSongByID", zap.Any("request", input))
 	songId, err := uuid.Parse(input)
 	if err != nil {
 		return nil, fmt.Errorf("failed parsing songId: %w", err)
 	}
-	songFromRepo, err := r.songRepo.GetSongById(ctx, songId)
+	songFromRepo, err := r.SongRepo.GetSongById(ctx, songId)
 	if err != nil {
 		return nil, err
 	}
@@ -102,12 +102,12 @@ func (r *queryResolver) SongByID(ctx context.Context, input string) (*model.Song
 }
 
 func (r *queryResolver) ArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error) {
-	r._logger.Info("Received request for all GetArtistsBySongID", zap.Any("request", input))
+	r.Logger.Info("Received request for all GetArtistsBySongID", zap.Any("request", input))
 	songId, err := uuid.Parse(input)
 	if err != nil {
 		return nil, fmt.Errorf("failed parsing songId: %w", err)
 	}
-	artistsFromRepo, err := r.songRepo.GetArtistsBySongId(ctx, songId)
+	artistsFromRepo, err := r.SongRepo.GetArtistsBySongId(ctx, songId)
 	if err != nil {
 		return nil, err
 	}

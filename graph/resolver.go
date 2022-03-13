@@ -10,10 +10,10 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	_logger  *zap.Logger
-	songRepo repository.ISongRepository
+	Logger   *zap.Logger
+	SongRepo repository.ISongRepository
 }
 
 func ResolverProvider(_logger *zap.Logger, repo repository.ISongRepository) (*Resolver, error) {
-	return &Resolver{_logger: _logger, songRepo: repo}, nil
+	return &Resolver{Logger: _logger, SongRepo: repo}, nil
 }
