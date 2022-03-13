@@ -4,6 +4,7 @@ package mocks
 
 import (
 	context "context"
+	"log"
 
 	ent "github.com/Zubayear/song-ql/ent"
 	mock "github.com/stretchr/testify/mock"
@@ -16,13 +17,13 @@ type ISongRepository struct {
 	mock.Mock
 }
 
-// AddArtist provides a mock function with given fields: ctx, artist, songId
-func (_m *ISongRepository) AddArtist(ctx context.Context, artist *ent.Artist, songId uuid.UUID) (*ent.Artist, error) {
-	ret := _m.Called(ctx, artist, songId)
+// AddArtist provides a mock function with given fields: ctx, artist
+func (_m *ISongRepository) AddArtist(ctx context.Context, artist *ent.Artist) (*ent.Artist, error) {
+	ret := _m.Called(ctx, artist)
 
 	var r0 *ent.Artist
-	if rf, ok := ret.Get(0).(func(context.Context, *ent.Artist, uuid.UUID) *ent.Artist); ok {
-		r0 = rf(ctx, artist, songId)
+	if rf, ok := ret.Get(0).(func(context.Context, *ent.Artist) *ent.Artist); ok {
+		r0 = rf(ctx, artist)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ent.Artist)
@@ -30,8 +31,8 @@ func (_m *ISongRepository) AddArtist(ctx context.Context, artist *ent.Artist, so
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *ent.Artist, uuid.UUID) error); ok {
-		r1 = rf(ctx, artist, songId)
+	if rf, ok := ret.Get(1).(func(context.Context, *ent.Artist) error); ok {
+		r1 = rf(ctx, artist)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -39,12 +40,13 @@ func (_m *ISongRepository) AddArtist(ctx context.Context, artist *ent.Artist, so
 	return r0, r1
 }
 
-// AddSong provides a mock function with given fields: ctx, song
-func (_m *ISongRepository) AddSong(ctx context.Context, song *ent.Song) (*ent.Song, error) {
-	ret := _m.Called(ctx, song)
+// AddSongWithArtistId provides a mock function with given fields: ctx, song, artistId
+func (_m *ISongRepository) AddSongWithArtistId(ctx context.Context, song *ent.Song, artistId []uuid.UUID) (*ent.Song, error) {
+	ret := _m.Called(ctx, song, artistId)
+
 	var r0 *ent.Song
-	if rf, ok := ret.Get(0).(func(context.Context, *ent.Song) *ent.Song); ok {
-		r0 = rf(ctx, song)
+	if rf, ok := ret.Get(0).(func(context.Context, *ent.Song, []uuid.UUID) *ent.Song); ok {
+		r0 = rf(ctx, song, artistId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ent.Song)
@@ -52,8 +54,55 @@ func (_m *ISongRepository) AddSong(ctx context.Context, song *ent.Song) (*ent.So
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *ent.Song) error); ok {
-		r1 = rf(ctx, song)
+	if rf, ok := ret.Get(1).(func(context.Context, *ent.Song, []uuid.UUID) error); ok {
+		r1 = rf(ctx, song, artistId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	log.Printf("r0: %v; r1: %v", r0, r1)
+	return r0, r1
+}
+
+// GetArtistById provides a mock function with given fields: ctx, artistIds
+func (_m *ISongRepository) GetArtistById(ctx context.Context, artistIds uuid.UUID) (*ent.Artist, error) {
+	ret := _m.Called(ctx, artistIds)
+
+	var r0 *ent.Artist
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *ent.Artist); ok {
+		r0 = rf(ctx, artistIds)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ent.Artist)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, artistIds)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetArtists provides a mock function with given fields: ctx
+func (_m *ISongRepository) GetArtists(ctx context.Context) ([]*ent.Artist, error) {
+	ret := _m.Called(ctx)
+
+	var r0 []*ent.Artist
+	if rf, ok := ret.Get(0).(func(context.Context) []*ent.Artist); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ent.Artist)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
