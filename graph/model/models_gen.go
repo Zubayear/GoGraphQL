@@ -9,15 +9,15 @@ type Artist struct {
 }
 
 type NewArtist struct {
-	SongID string `json:"songId"`
-	Name   string `json:"name"`
-	Age    int    `json:"age"`
+	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 type NewSong struct {
-	Title        string  `json:"title"`
-	Duration     float64 `json:"duration"`
-	LyricsExists bool    `json:"lyricsExists"`
+	ArtistID     []string `json:"artistId"`
+	Title        string   `json:"title"`
+	Duration     float64  `json:"duration"`
+	LyricsExists bool     `json:"lyricsExists"`
 }
 
 type Song struct {

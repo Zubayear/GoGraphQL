@@ -13,21 +13,12 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString},
 		{Name: "age", Type: field.TypeInt},
-		{Name: "song_artists", Type: field.TypeUUID, Nullable: true},
 	}
 	// ArtistsTable holds the schema information for the "artists" table.
 	ArtistsTable = &schema.Table{
 		Name:       "artists",
 		Columns:    ArtistsColumns,
 		PrimaryKey: []*schema.Column{ArtistsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "artists_songs_artists",
-				Columns:    []*schema.Column{ArtistsColumns[3]},
-				RefColumns: []*schema.Column{SongsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// SongsColumns holds the columns for the "songs" table.
 	SongsColumns = []*schema.Column{
@@ -42,13 +33,40 @@ var (
 		Columns:    SongsColumns,
 		PrimaryKey: []*schema.Column{SongsColumns[0]},
 	}
+	// ArtistSongsColumns holds the columns for the "artist_songs" table.
+	ArtistSongsColumns = []*schema.Column{
+		{Name: "artist_id", Type: field.TypeUUID},
+		{Name: "song_id", Type: field.TypeUUID},
+	}
+	// ArtistSongsTable holds the schema information for the "artist_songs" table.
+	ArtistSongsTable = &schema.Table{
+		Name:       "artist_songs",
+		Columns:    ArtistSongsColumns,
+		PrimaryKey: []*schema.Column{ArtistSongsColumns[0], ArtistSongsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "artist_songs_artist_id",
+				Columns:    []*schema.Column{ArtistSongsColumns[0]},
+				RefColumns: []*schema.Column{ArtistsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "artist_songs_song_id",
+				Columns:    []*schema.Column{ArtistSongsColumns[1]},
+				RefColumns: []*schema.Column{SongsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ArtistsTable,
 		SongsTable,
+		ArtistSongsTable,
 	}
 )
 
 func init() {
-	ArtistsTable.ForeignKeys[0].RefTable = SongsTable
+	ArtistSongsTable.ForeignKeys[0].RefTable = ArtistsTable
+	ArtistSongsTable.ForeignKeys[1].RefTable = SongsTable
 }

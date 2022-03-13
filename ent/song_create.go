@@ -230,10 +230,10 @@ func (sc *SongCreate) createSpec() (*Song, *sqlgraph.CreateSpec) {
 	}
 	if nodes := sc.mutation.ArtistsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
 			Table:   song.ArtistsTable,
-			Columns: []string{song.ArtistsColumn},
+			Columns: song.ArtistsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

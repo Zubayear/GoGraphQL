@@ -21,13 +21,11 @@ const (
 	EdgeArtists = "artists"
 	// Table holds the table name of the song in the database.
 	Table = "songs"
-	// ArtistsTable is the table that holds the artists relation/edge.
-	ArtistsTable = "artists"
+	// ArtistsTable is the table that holds the artists relation/edge. The primary key declared below.
+	ArtistsTable = "artist_songs"
 	// ArtistsInverseTable is the table name for the Artist entity.
 	// It exists in this package in order to avoid circular dependency with the "artist" package.
 	ArtistsInverseTable = "artists"
-	// ArtistsColumn is the table column denoting the artists relation/edge.
-	ArtistsColumn = "song_artists"
 )
 
 // Columns holds all SQL columns for song fields.
@@ -37,6 +35,12 @@ var Columns = []string{
 	FieldDuration,
 	FieldLyricsExits,
 }
+
+var (
+	// ArtistsPrimaryKey and ArtistsColumn2 are the table columns denoting the
+	// primary key for the artists relation (M2M).
+	ArtistsPrimaryKey = []string{"artist_id", "song_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

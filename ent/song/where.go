@@ -320,7 +320,7 @@ func HasArtists() predicate.Song {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(ArtistsTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ArtistsTable, ArtistsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ArtistsTable, ArtistsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -332,7 +332,7 @@ func HasArtistsWith(preds ...predicate.Artist) predicate.Song {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(ArtistsInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ArtistsTable, ArtistsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, ArtistsTable, ArtistsPrimaryKey...),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

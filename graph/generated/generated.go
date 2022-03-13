@@ -55,6 +55,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Artists         func(childComplexity int) int
 		ArtistsBySongID func(childComplexity int, input string) int
 		SongByID        func(childComplexity int, input string) int
 		Songs           func(childComplexity int) int
@@ -75,6 +76,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Songs(ctx context.Context) ([]*model.Song, error)
+	Artists(ctx context.Context) ([]*model.Artist, error)
 	SongByID(ctx context.Context, input string) (*model.Song, error)
 	ArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error)
 }
@@ -138,6 +140,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateSong(childComplexity, args["input"].(model.NewSong)), true
+
+	case "Query.artists":
+		if e.complexity.Query.Artists == nil {
+			break
+		}
+
+		return e.complexity.Query.Artists(childComplexity), true
 
 	case "Query.artistsBySongId":
 		if e.complexity.Query.ArtistsBySongID == nil {
@@ -289,18 +298,19 @@ type Artist {
 
 type Query {
   songs: [Song!]!
+  artists: [Artist!]!
   songById(input: ID!): Song!
   artistsBySongId(input: ID!): [Artist!]!
 }
 
 input NewSong {
+  artistId: [ID!]!
   title: String!
   duration: Float!
   lyricsExists: Boolean!
 }
 
 input NewArtist {
-  songId: ID!
   name: String!
   age: Int!
 }
@@ -653,6 +663,41 @@ func (ec *executionContext) _Query_songs(ctx context.Context, field graphql.Coll
 	res := resTmp.([]*model.Song)
 	fc.Result = res
 	return ec.marshalNSong2ᚕᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐSongᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_artists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Artists(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Artist)
+	fc.Result = res
+	return ec.marshalNArtist2ᚕᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐArtistᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_songById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2180,14 +2225,6 @@ func (ec *executionContext) unmarshalInputNewArtist(ctx context.Context, obj int
 
 	for k, v := range asMap {
 		switch k {
-		case "songId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("songId"))
-			it.SongID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "name":
 			var err error
 
@@ -2219,6 +2256,14 @@ func (ec *executionContext) unmarshalInputNewSong(ctx context.Context, obj inter
 
 	for k, v := range asMap {
 		switch k {
+		case "artistId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("artistId"))
+			it.ArtistID, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "title":
 			var err error
 
@@ -2387,6 +2432,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_songs(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "artists":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_artists(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3066,6 +3134,38 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {

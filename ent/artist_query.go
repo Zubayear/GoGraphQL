@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -28,7 +29,6 @@ type ArtistQuery struct {
 	predicates []predicate.Artist
 	// eager-loading edges.
 	withSongs *SongQuery
-	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,7 +79,7 @@ func (aq *ArtistQuery) QuerySongs() *SongQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(artist.Table, artist.FieldID, selector),
 			sqlgraph.To(song.Table, song.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, artist.SongsTable, artist.SongsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, artist.SongsTable, artist.SongsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -351,18 +351,11 @@ func (aq *ArtistQuery) prepareQuery(ctx context.Context) error {
 func (aq *ArtistQuery) sqlAll(ctx context.Context) ([]*Artist, error) {
 	var (
 		nodes       = []*Artist{}
-		withFKs     = aq.withFKs
 		_spec       = aq.querySpec()
 		loadedTypes = [1]bool{
 			aq.withSongs != nil,
 		}
 	)
-	if aq.withSongs != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, artist.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Artist{config: aq.config}
 		nodes = append(nodes, node)
@@ -384,30 +377,66 @@ func (aq *ArtistQuery) sqlAll(ctx context.Context) ([]*Artist, error) {
 	}
 
 	if query := aq.withSongs; query != nil {
-		ids := make([]uuid.UUID, 0, len(nodes))
-		nodeids := make(map[uuid.UUID][]*Artist)
-		for i := range nodes {
-			if nodes[i].song_artists == nil {
-				continue
-			}
-			fk := *nodes[i].song_artists
-			if _, ok := nodeids[fk]; !ok {
-				ids = append(ids, fk)
-			}
-			nodeids[fk] = append(nodeids[fk], nodes[i])
+		fks := make([]driver.Value, 0, len(nodes))
+		ids := make(map[uuid.UUID]*Artist, len(nodes))
+		for _, node := range nodes {
+			ids[node.ID] = node
+			fks = append(fks, node.ID)
+			node.Edges.Songs = []*Song{}
 		}
-		query.Where(song.IDIn(ids...))
+		var (
+			edgeids []uuid.UUID
+			edges   = make(map[uuid.UUID][]*Artist)
+		)
+		_spec := &sqlgraph.EdgeQuerySpec{
+			Edge: &sqlgraph.EdgeSpec{
+				Inverse: false,
+				Table:   artist.SongsTable,
+				Columns: artist.SongsPrimaryKey,
+			},
+			Predicate: func(s *sql.Selector) {
+				s.Where(sql.InValues(artist.SongsPrimaryKey[0], fks...))
+			},
+			ScanValues: func() [2]interface{} {
+				return [2]interface{}{new(uuid.UUID), new(uuid.UUID)}
+			},
+			Assign: func(out, in interface{}) error {
+				eout, ok := out.(*uuid.UUID)
+				if !ok || eout == nil {
+					return fmt.Errorf("unexpected id value for edge-out")
+				}
+				ein, ok := in.(*uuid.UUID)
+				if !ok || ein == nil {
+					return fmt.Errorf("unexpected id value for edge-in")
+				}
+				outValue := *eout
+				inValue := *ein
+				node, ok := ids[outValue]
+				if !ok {
+					return fmt.Errorf("unexpected node id in edges: %v", outValue)
+				}
+				if _, ok := edges[inValue]; !ok {
+					edgeids = append(edgeids, inValue)
+				}
+				edges[inValue] = append(edges[inValue], node)
+				return nil
+			},
+		}
+		if err := sqlgraph.QueryEdges(ctx, aq.driver, _spec); err != nil {
+			return nil, fmt.Errorf(`query edges "songs": %w`, err)
+		}
+		query.Where(song.IDIn(edgeids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
+			nodes, ok := edges[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "song_artists" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected "songs" node returned %v`, n.ID)
 			}
 			for i := range nodes {
-				nodes[i].Edges.Songs = n
+				nodes[i].Edges.Songs = append(nodes[i].Edges.Songs, n)
 			}
 		}
 	}

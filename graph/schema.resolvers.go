@@ -21,12 +21,34 @@ func (r *mutationResolver) CreateSong(ctx context.Context, input model.NewSong) 
 		Duration:    input.Duration,
 		LyricsExits: input.LyricsExists,
 	}
-	songToFromRepo, err := r.Resolver.SongRepo.AddSong(ctx, songToSave)
+	var artistIds []uuid.UUID
+	for _, artistId := range input.ArtistID {
+		parsedArtistId, err := uuid.Parse(artistId)
+		if err != nil {
+			return nil, fmt.Errorf("failed parsing artistId: %w", err)
+		}
+		artistIds = append(artistIds, parsedArtistId)
+	}
+	songToFromRepo, err := r.SongRepo.AddSongWithArtistId(ctx, songToSave, artistIds)
 	if err != nil {
 		return nil, err
 	}
 	songToReturn := &model.Song{}
 	songMapper(songToFromRepo, songToReturn)
+	artists, err := r.SongRepo.GetArtistsBySongId(ctx, songToFromRepo.ID)
+	if err != nil {
+		return nil, err
+	}
+	var artistsToAdd []*model.Artist
+	for _, artist := range artists {
+		mappedArtist := &model.Artist{
+			ID:   artist.ID.String(),
+			Name: artist.Name,
+			Age:  artist.Age,
+		}
+		artistsToAdd = append(artistsToAdd, mappedArtist)
+	}
+	songToReturn.Artists = artistsToAdd
 	return songToReturn, nil
 }
 
@@ -36,11 +58,7 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArti
 		Name: input.Name,
 		Age:  input.Age,
 	}
-	songId, err := uuid.Parse(input.SongID)
-	if err != nil {
-		return nil, fmt.Errorf("failed parsing songId: %w", err)
-	}
-	artistFromRepo, err := r.SongRepo.AddArtist(ctx, artistToSave, songId)
+	artistFromRepo, err := r.SongRepo.AddArtist(ctx, artistToSave)
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +93,21 @@ func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
 		songsToReturn = append(songsToReturn, mappedSong)
 	}
 	return songsToReturn, nil
+}
+
+func (r *queryResolver) Artists(ctx context.Context) ([]*model.Artist, error) {
+	r.Logger.Info("Received request for all Artists")
+	artists, err := r.SongRepo.GetArtists(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var artistsToReturn []*model.Artist
+	for _, artist := range artists {
+		mappedArtist := &model.Artist{}
+		mapArtist(artist, mappedArtist)
+		artistsToReturn = append(artistsToReturn, mappedArtist)
+	}
+	return artistsToReturn, nil
 }
 
 func (r *queryResolver) SongByID(ctx context.Context, input string) (*model.Song, error) {
@@ -129,6 +162,12 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
 func mapArtist(src *ent.Artist, dst *model.Artist) {
 	dst.ID = src.ID.String()
 	dst.Name = src.Name

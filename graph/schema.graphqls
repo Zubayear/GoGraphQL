@@ -18,18 +18,19 @@ type Artist {
 
 type Query {
   songs: [Song!]!
+  artists: [Artist!]!
   songById(input: ID!): Song!
   artistsBySongId(input: ID!): [Artist!]!
 }
 
 input NewSong {
+  artistId: [ID!]!
   title: String!
   duration: Float!
   lyricsExists: Boolean!
 }
 
 input NewArtist {
-  songId: ID!
   name: String!
   age: Int!
 }
