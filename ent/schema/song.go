@@ -28,6 +28,6 @@ func (Song) Fields() []ent.Field {
 // Edges of the Song.
 func (Song) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("artists", Artist.Type).Ref("songs"),
+		edge.To("artists", Artist.Type),
 	}
 }

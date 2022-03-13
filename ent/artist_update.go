@@ -48,19 +48,23 @@ func (au *ArtistUpdate) AddAge(i int) *ArtistUpdate {
 	return au
 }
 
-// AddSongIDs adds the "songs" edge to the Song entity by IDs.
-func (au *ArtistUpdate) AddSongIDs(ids ...uuid.UUID) *ArtistUpdate {
-	au.mutation.AddSongIDs(ids...)
+// SetSongsID sets the "songs" edge to the Song entity by ID.
+func (au *ArtistUpdate) SetSongsID(id uuid.UUID) *ArtistUpdate {
+	au.mutation.SetSongsID(id)
 	return au
 }
 
-// AddSongs adds the "songs" edges to the Song entity.
-func (au *ArtistUpdate) AddSongs(s ...*Song) *ArtistUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableSongsID sets the "songs" edge to the Song entity by ID if the given value is not nil.
+func (au *ArtistUpdate) SetNillableSongsID(id *uuid.UUID) *ArtistUpdate {
+	if id != nil {
+		au = au.SetSongsID(*id)
 	}
-	return au.AddSongIDs(ids...)
+	return au
+}
+
+// SetSongs sets the "songs" edge to the Song entity.
+func (au *ArtistUpdate) SetSongs(s *Song) *ArtistUpdate {
+	return au.SetSongsID(s.ID)
 }
 
 // Mutation returns the ArtistMutation object of the builder.
@@ -68,25 +72,10 @@ func (au *ArtistUpdate) Mutation() *ArtistMutation {
 	return au.mutation
 }
 
-// ClearSongs clears all "songs" edges to the Song entity.
+// ClearSongs clears the "songs" edge to the Song entity.
 func (au *ArtistUpdate) ClearSongs() *ArtistUpdate {
 	au.mutation.ClearSongs()
 	return au
-}
-
-// RemoveSongIDs removes the "songs" edge to Song entities by IDs.
-func (au *ArtistUpdate) RemoveSongIDs(ids ...uuid.UUID) *ArtistUpdate {
-	au.mutation.RemoveSongIDs(ids...)
-	return au
-}
-
-// RemoveSongs removes "songs" edges to Song entities.
-func (au *ArtistUpdate) RemoveSongs(s ...*Song) *ArtistUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return au.RemoveSongIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -184,10 +173,10 @@ func (au *ArtistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if au.mutation.SongsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
+			Columns: []string{artist.SongsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -195,34 +184,15 @@ func (au *ArtistUpdate) sqlSave(ctx context.Context) (n int, err error) {
 					Column: song.FieldID,
 				},
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := au.mutation.RemovedSongsIDs(); len(nodes) > 0 && !au.mutation.SongsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: song.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := au.mutation.SongsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
+			Columns: []string{artist.SongsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -274,19 +244,23 @@ func (auo *ArtistUpdateOne) AddAge(i int) *ArtistUpdateOne {
 	return auo
 }
 
-// AddSongIDs adds the "songs" edge to the Song entity by IDs.
-func (auo *ArtistUpdateOne) AddSongIDs(ids ...uuid.UUID) *ArtistUpdateOne {
-	auo.mutation.AddSongIDs(ids...)
+// SetSongsID sets the "songs" edge to the Song entity by ID.
+func (auo *ArtistUpdateOne) SetSongsID(id uuid.UUID) *ArtistUpdateOne {
+	auo.mutation.SetSongsID(id)
 	return auo
 }
 
-// AddSongs adds the "songs" edges to the Song entity.
-func (auo *ArtistUpdateOne) AddSongs(s ...*Song) *ArtistUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableSongsID sets the "songs" edge to the Song entity by ID if the given value is not nil.
+func (auo *ArtistUpdateOne) SetNillableSongsID(id *uuid.UUID) *ArtistUpdateOne {
+	if id != nil {
+		auo = auo.SetSongsID(*id)
 	}
-	return auo.AddSongIDs(ids...)
+	return auo
+}
+
+// SetSongs sets the "songs" edge to the Song entity.
+func (auo *ArtistUpdateOne) SetSongs(s *Song) *ArtistUpdateOne {
+	return auo.SetSongsID(s.ID)
 }
 
 // Mutation returns the ArtistMutation object of the builder.
@@ -294,25 +268,10 @@ func (auo *ArtistUpdateOne) Mutation() *ArtistMutation {
 	return auo.mutation
 }
 
-// ClearSongs clears all "songs" edges to the Song entity.
+// ClearSongs clears the "songs" edge to the Song entity.
 func (auo *ArtistUpdateOne) ClearSongs() *ArtistUpdateOne {
 	auo.mutation.ClearSongs()
 	return auo
-}
-
-// RemoveSongIDs removes the "songs" edge to Song entities by IDs.
-func (auo *ArtistUpdateOne) RemoveSongIDs(ids ...uuid.UUID) *ArtistUpdateOne {
-	auo.mutation.RemoveSongIDs(ids...)
-	return auo
-}
-
-// RemoveSongs removes "songs" edges to Song entities.
-func (auo *ArtistUpdateOne) RemoveSongs(s ...*Song) *ArtistUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return auo.RemoveSongIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -434,10 +393,10 @@ func (auo *ArtistUpdateOne) sqlSave(ctx context.Context) (_node *Artist, err err
 	}
 	if auo.mutation.SongsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
+			Columns: []string{artist.SongsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -445,34 +404,15 @@ func (auo *ArtistUpdateOne) sqlSave(ctx context.Context) (_node *Artist, err err
 					Column: song.FieldID,
 				},
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := auo.mutation.RemovedSongsIDs(); len(nodes) > 0 && !auo.mutation.SongsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: song.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := auo.mutation.SongsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
+			Columns: []string{artist.SongsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

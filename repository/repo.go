@@ -12,38 +12,19 @@ import (
 )
 
 type ISongRepository interface {
-	AddSongWithArtistId(ctx context.Context, song *ent.Song, artistId []uuid.UUID) (*ent.Song, error)
+	AddSong(ctx context.Context, song *ent.Song) (*ent.Song, error)
 	GetSongs(ctx context.Context) ([]*ent.Song, error)
-	AddArtist(ctx context.Context, artist *ent.Artist) (*ent.Artist, error)
+	AddArtist(ctx context.Context, artist *ent.Artist, songId uuid.UUID) (*ent.Artist, error)
 	GetSongById(ctx context.Context, songId uuid.UUID) (*ent.Song, error)
 	GetArtistsBySongId(ctx context.Context, songId uuid.UUID) ([]*ent.Artist, error)
-	GetArtistById(ctx context.Context, artistIds uuid.UUID) (*ent.Artist, error)
-	GetArtists(ctx context.Context) ([]*ent.Artist, error)
 }
 
 type SongRepository struct {
 	songClient *ent.Client
 }
 
-func (s *SongRepository) GetArtists(ctx context.Context) ([]*ent.Artist, error) {
-	allArtists, err := s.songClient.Artist.Query().All(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed getting all artists: %w", err)
-	}
-	return allArtists, nil
-}
-
-func (s *SongRepository) GetArtistById(ctx context.Context, artistId uuid.UUID) (*ent.Artist, error) {
-	artist, err := s.songClient.Artist.Get(ctx, artistId)
-	if err != nil {
-		return nil, fmt.Errorf("failed getting artist: %v", err)
-	}
-	return artist, nil
-}
-
 func (s *SongRepository) GetArtistsBySongId(ctx context.Context, songId uuid.UUID) ([]*ent.Artist, error) {
 	allArtists, err := s.songClient.Song.Query().Where(song.ID(songId)).QueryArtists().All(ctx)
-	log.Println(allArtists)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting all artists: %w", err)
 	}
@@ -58,23 +39,25 @@ func (s *SongRepository) GetSongById(ctx context.Context, songId uuid.UUID) (*en
 	return songFromRepo, nil
 }
 
-func (s *SongRepository) AddArtist(ctx context.Context, artist *ent.Artist) (*ent.Artist, error) {
+func (s *SongRepository) AddArtist(ctx context.Context, artist *ent.Artist, songId uuid.UUID) (*ent.Artist, error) {
 	savedArtist, err := s.songClient.Artist.Create().
 		SetName(artist.Name).
-		SetAge(artist.Age).Save(ctx)
+		SetAge(artist.Age).
+		SetSongsID(songId).Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating artist: %w", err)
 	}
 	return savedArtist, err
 }
 
-func (s *SongRepository) AddSongWithArtistId(ctx context.Context, song *ent.Song, artistIds []uuid.UUID) (*ent.Song, error) {
+func (s *SongRepository) AddSong(ctx context.Context, song *ent.Song) (*ent.Song, error) {
 	savedSong, err := s.songClient.Song.Create().
-		SetTitle(song.Title).
 		SetDuration(song.Duration).
-		SetLyricsExits(song.LyricsExits).AddArtistIDs(artistIds...).Save(ctx)
+		SetTitle(song.Title).
+		SetLyricsExits(song.LyricsExits).
+		Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed saving song with artist id: %w", err)
+		return nil, fmt.Errorf("failed saving song: %w", err)
 	}
 	return savedSong, nil
 }
@@ -87,7 +70,6 @@ func (s *SongRepository) GetSongs(ctx context.Context) ([]*ent.Song, error) {
 	return allSongs, nil
 }
 
-// NewSongRepository Utility function to auto generate interface methods with IDE help
 func NewSongRepository() ISongRepository {
 	return &SongRepository{}
 }

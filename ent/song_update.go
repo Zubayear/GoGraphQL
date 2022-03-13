@@ -205,10 +205,10 @@ func (su *SongUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.ArtistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   song.ArtistsTable,
-			Columns: song.ArtistsPrimaryKey,
+			Columns: []string{song.ArtistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -221,10 +221,10 @@ func (su *SongUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := su.mutation.RemovedArtistsIDs(); len(nodes) > 0 && !su.mutation.ArtistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   song.ArtistsTable,
-			Columns: song.ArtistsPrimaryKey,
+			Columns: []string{song.ArtistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -240,10 +240,10 @@ func (su *SongUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := su.mutation.ArtistsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   song.ArtistsTable,
-			Columns: song.ArtistsPrimaryKey,
+			Columns: []string{song.ArtistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -476,10 +476,10 @@ func (suo *SongUpdateOne) sqlSave(ctx context.Context) (_node *Song, err error) 
 	}
 	if suo.mutation.ArtistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   song.ArtistsTable,
-			Columns: song.ArtistsPrimaryKey,
+			Columns: []string{song.ArtistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -492,10 +492,10 @@ func (suo *SongUpdateOne) sqlSave(ctx context.Context) (_node *Song, err error) 
 	}
 	if nodes := suo.mutation.RemovedArtistsIDs(); len(nodes) > 0 && !suo.mutation.ArtistsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   song.ArtistsTable,
-			Columns: song.ArtistsPrimaryKey,
+			Columns: []string{song.ArtistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -511,10 +511,10 @@ func (suo *SongUpdateOne) sqlSave(ctx context.Context) (_node *Song, err error) 
 	}
 	if nodes := suo.mutation.ArtistsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
 			Table:   song.ArtistsTable,
-			Columns: song.ArtistsPrimaryKey,
+			Columns: []string{song.ArtistsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

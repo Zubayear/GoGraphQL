@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/Zubayear/song-ql/ent/artist"
+	"github.com/Zubayear/song-ql/ent/song"
 	"github.com/google/uuid"
 )
 
@@ -22,22 +23,28 @@ type Artist struct {
 	Age int `json:"age,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArtistQuery when eager-loading is set.
-	Edges ArtistEdges `json:"edges"`
+	Edges        ArtistEdges `json:"edges"`
+	song_artists *uuid.UUID
 }
 
 // ArtistEdges holds the relations/edges for other nodes in the graph.
 type ArtistEdges struct {
 	// Songs holds the value of the songs edge.
-	Songs []*Song `json:"songs,omitempty"`
+	Songs *Song `json:"songs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // SongsOrErr returns the Songs value or an error if the edge
-// was not loaded in eager-loading.
-func (e ArtistEdges) SongsOrErr() ([]*Song, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ArtistEdges) SongsOrErr() (*Song, error) {
 	if e.loadedTypes[0] {
+		if e.Songs == nil {
+			// The edge songs was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: song.Label}
+		}
 		return e.Songs, nil
 	}
 	return nil, &NotLoadedError{edge: "songs"}
@@ -54,6 +61,8 @@ func (*Artist) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullString)
 		case artist.FieldID:
 			values[i] = new(uuid.UUID)
+		case artist.ForeignKeys[0]: // song_artists
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Artist", columns[i])
 		}
@@ -86,6 +95,13 @@ func (a *Artist) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field age", values[i])
 			} else if value.Valid {
 				a.Age = int(value.Int64)
+			}
+		case artist.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field song_artists", values[i])
+			} else if value.Valid {
+				a.song_artists = new(uuid.UUID)
+				*a.song_artists = *value.S.(*uuid.UUID)
 			}
 		}
 	}

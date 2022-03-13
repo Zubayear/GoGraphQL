@@ -39,8 +39,7 @@ type ArtistMutation struct {
 	age           *int
 	addage        *int
 	clearedFields map[string]struct{}
-	songs         map[uuid.UUID]struct{}
-	removedsongs  map[uuid.UUID]struct{}
+	songs         *uuid.UUID
 	clearedsongs  bool
 	done          bool
 	oldValue      func(context.Context) (*Artist, error)
@@ -243,14 +242,9 @@ func (m *ArtistMutation) ResetAge() {
 	m.addage = nil
 }
 
-// AddSongIDs adds the "songs" edge to the Song entity by ids.
-func (m *ArtistMutation) AddSongIDs(ids ...uuid.UUID) {
-	if m.songs == nil {
-		m.songs = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.songs[ids[i]] = struct{}{}
-	}
+// SetSongsID sets the "songs" edge to the Song entity by id.
+func (m *ArtistMutation) SetSongsID(id uuid.UUID) {
+	m.songs = &id
 }
 
 // ClearSongs clears the "songs" edge to the Song entity.
@@ -263,29 +257,20 @@ func (m *ArtistMutation) SongsCleared() bool {
 	return m.clearedsongs
 }
 
-// RemoveSongIDs removes the "songs" edge to the Song entity by IDs.
-func (m *ArtistMutation) RemoveSongIDs(ids ...uuid.UUID) {
-	if m.removedsongs == nil {
-		m.removedsongs = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.songs, ids[i])
-		m.removedsongs[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedSongs returns the removed IDs of the "songs" edge to the Song entity.
-func (m *ArtistMutation) RemovedSongsIDs() (ids []uuid.UUID) {
-	for id := range m.removedsongs {
-		ids = append(ids, id)
+// SongsID returns the "songs" edge ID in the mutation.
+func (m *ArtistMutation) SongsID() (id uuid.UUID, exists bool) {
+	if m.songs != nil {
+		return *m.songs, true
 	}
 	return
 }
 
 // SongsIDs returns the "songs" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// SongsID instead. It exists only for internal usage by the builders.
 func (m *ArtistMutation) SongsIDs() (ids []uuid.UUID) {
-	for id := range m.songs {
-		ids = append(ids, id)
+	if id := m.songs; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -294,7 +279,6 @@ func (m *ArtistMutation) SongsIDs() (ids []uuid.UUID) {
 func (m *ArtistMutation) ResetSongs() {
 	m.songs = nil
 	m.clearedsongs = false
-	m.removedsongs = nil
 }
 
 // Where appends a list predicates to the ArtistMutation builder.
@@ -459,11 +443,9 @@ func (m *ArtistMutation) AddedEdges() []string {
 func (m *ArtistMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case artist.EdgeSongs:
-		ids := make([]ent.Value, 0, len(m.songs))
-		for id := range m.songs {
-			ids = append(ids, id)
+		if id := m.songs; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -471,9 +453,6 @@ func (m *ArtistMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ArtistMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedsongs != nil {
-		edges = append(edges, artist.EdgeSongs)
-	}
 	return edges
 }
 
@@ -481,12 +460,6 @@ func (m *ArtistMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *ArtistMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case artist.EdgeSongs:
-		ids := make([]ent.Value, 0, len(m.removedsongs))
-		for id := range m.removedsongs {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
@@ -514,6 +487,9 @@ func (m *ArtistMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ArtistMutation) ClearEdge(name string) error {
 	switch name {
+	case artist.EdgeSongs:
+		m.ClearSongs()
+		return nil
 	}
 	return fmt.Errorf("unknown Artist unique edge %s", name)
 }

@@ -79,7 +79,7 @@ func (sq *SongQuery) QueryArtists() *ArtistQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(song.Table, song.FieldID, selector),
 			sqlgraph.To(artist.Table, artist.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, song.ArtistsTable, song.ArtistsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, song.ArtistsTable, song.ArtistsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -378,66 +378,30 @@ func (sq *SongQuery) sqlAll(ctx context.Context) ([]*Song, error) {
 
 	if query := sq.withArtists; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
-		ids := make(map[uuid.UUID]*Song, len(nodes))
-		for _, node := range nodes {
-			ids[node.ID] = node
-			fks = append(fks, node.ID)
-			node.Edges.Artists = []*Artist{}
+		nodeids := make(map[uuid.UUID]*Song)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Artists = []*Artist{}
 		}
-		var (
-			edgeids []uuid.UUID
-			edges   = make(map[uuid.UUID][]*Song)
-		)
-		_spec := &sqlgraph.EdgeQuerySpec{
-			Edge: &sqlgraph.EdgeSpec{
-				Inverse: true,
-				Table:   song.ArtistsTable,
-				Columns: song.ArtistsPrimaryKey,
-			},
-			Predicate: func(s *sql.Selector) {
-				s.Where(sql.InValues(song.ArtistsPrimaryKey[1], fks...))
-			},
-			ScanValues: func() [2]interface{} {
-				return [2]interface{}{new(uuid.UUID), new(uuid.UUID)}
-			},
-			Assign: func(out, in interface{}) error {
-				eout, ok := out.(*uuid.UUID)
-				if !ok || eout == nil {
-					return fmt.Errorf("unexpected id value for edge-out")
-				}
-				ein, ok := in.(*uuid.UUID)
-				if !ok || ein == nil {
-					return fmt.Errorf("unexpected id value for edge-in")
-				}
-				outValue := *eout
-				inValue := *ein
-				node, ok := ids[outValue]
-				if !ok {
-					return fmt.Errorf("unexpected node id in edges: %v", outValue)
-				}
-				if _, ok := edges[inValue]; !ok {
-					edgeids = append(edgeids, inValue)
-				}
-				edges[inValue] = append(edges[inValue], node)
-				return nil
-			},
-		}
-		if err := sqlgraph.QueryEdges(ctx, sq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "artists": %w`, err)
-		}
-		query.Where(artist.IDIn(edgeids...))
+		query.withFKs = true
+		query.Where(predicate.Artist(func(s *sql.Selector) {
+			s.Where(sql.InValues(song.ArtistsColumn, fks...))
+		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := edges[n.ID]
+			fk := n.song_artists
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "song_artists" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected "artists" node returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "song_artists" returned %v for node %v`, *fk, n.ID)
 			}
-			for i := range nodes {
-				nodes[i].Edges.Artists = append(nodes[i].Edges.Artists, n)
-			}
+			node.Edges.Artists = append(node.Edges.Artists, n)
 		}
 	}
 

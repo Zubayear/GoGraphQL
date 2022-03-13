@@ -47,19 +47,23 @@ func (ac *ArtistCreate) SetNillableID(u *uuid.UUID) *ArtistCreate {
 	return ac
 }
 
-// AddSongIDs adds the "songs" edge to the Song entity by IDs.
-func (ac *ArtistCreate) AddSongIDs(ids ...uuid.UUID) *ArtistCreate {
-	ac.mutation.AddSongIDs(ids...)
+// SetSongsID sets the "songs" edge to the Song entity by ID.
+func (ac *ArtistCreate) SetSongsID(id uuid.UUID) *ArtistCreate {
+	ac.mutation.SetSongsID(id)
 	return ac
 }
 
-// AddSongs adds the "songs" edges to the Song entity.
-func (ac *ArtistCreate) AddSongs(s ...*Song) *ArtistCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableSongsID sets the "songs" edge to the Song entity by ID if the given value is not nil.
+func (ac *ArtistCreate) SetNillableSongsID(id *uuid.UUID) *ArtistCreate {
+	if id != nil {
+		ac = ac.SetSongsID(*id)
 	}
-	return ac.AddSongIDs(ids...)
+	return ac
+}
+
+// SetSongs sets the "songs" edge to the Song entity.
+func (ac *ArtistCreate) SetSongs(s *Song) *ArtistCreate {
+	return ac.SetSongsID(s.ID)
 }
 
 // Mutation returns the ArtistMutation object of the builder.
@@ -201,10 +205,10 @@ func (ac *ArtistCreate) createSpec() (*Artist, *sqlgraph.CreateSpec) {
 	}
 	if nodes := ac.mutation.SongsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   artist.SongsTable,
-			Columns: artist.SongsPrimaryKey,
+			Columns: []string{artist.SongsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -216,6 +220,7 @@ func (ac *ArtistCreate) createSpec() (*Artist, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.song_artists = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

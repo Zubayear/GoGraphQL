@@ -224,7 +224,7 @@ func (c *ArtistClient) QuerySongs(a *Artist) *SongQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(artist.Table, artist.FieldID, id),
 			sqlgraph.To(song.Table, song.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, artist.SongsTable, artist.SongsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, artist.SongsTable, artist.SongsColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -330,7 +330,7 @@ func (c *SongClient) QueryArtists(s *Song) *ArtistQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(song.Table, song.FieldID, id),
 			sqlgraph.To(artist.Table, artist.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, song.ArtistsTable, song.ArtistsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, song.ArtistsTable, song.ArtistsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
