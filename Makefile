@@ -19,3 +19,7 @@ tidy:
 .PHONY: di
 di:
 	@wire di/wire.go
+
+.PHONY: mock
+mock:
+	@mockery --name=$(arg)
