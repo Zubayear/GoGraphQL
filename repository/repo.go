@@ -17,12 +17,25 @@ type ISongRepository interface {
 	AddArtist(ctx context.Context, artist *ent.Artist) (*ent.Artist, error)
 	GetSongById(ctx context.Context, songId uuid.UUID) (*ent.Song, error)
 	GetArtistsBySongId(ctx context.Context, songId uuid.UUID) ([]*ent.Artist, error)
-	GetArtistById(ctx context.Context, artistIds uuid.UUID) (*ent.Artist, error)
+	GetArtistById(ctx context.Context, artistId uuid.UUID) (*ent.Artist, error)
 	GetArtists(ctx context.Context) ([]*ent.Artist, error)
+	AddArtists(ctx context.Context, artists []*ent.Artist) ([]*ent.Artist, error)
 }
 
 type SongRepository struct {
 	songClient *ent.Client
+}
+
+func (s *SongRepository) AddArtists(ctx context.Context, artists []*ent.Artist) ([]*ent.Artist, error) {
+	bulk := make([]*ent.ArtistCreate, len(artists))
+	for i, artist := range artists {
+		bulk[i] = s.songClient.Artist.Create().SetName(artist.Name).SetAge(artist.Age)
+	}
+	savedArtists, err := s.songClient.Artist.CreateBulk(bulk...).Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed saving artists: %w", err)
+	}
+	return savedArtists, nil
 }
 
 func (s *SongRepository) GetArtists(ctx context.Context) ([]*ent.Artist, error) {

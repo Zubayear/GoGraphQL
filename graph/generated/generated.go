@@ -50,8 +50,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateArtist func(childComplexity int, input model.NewArtist) int
-		CreateSong   func(childComplexity int, input model.NewSong) int
+		CreateArtist  func(childComplexity int, input model.NewArtist) int
+		CreateArtists func(childComplexity int, input []*model.NewArtist) int
+		CreateSong    func(childComplexity int, input model.NewSong) int
 	}
 
 	Query struct {
@@ -73,6 +74,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateSong(ctx context.Context, input model.NewSong) (*model.Song, error)
 	CreateArtist(ctx context.Context, input model.NewArtist) (*model.Artist, error)
+	CreateArtists(ctx context.Context, input []*model.NewArtist) ([]*model.Artist, error)
 }
 type QueryResolver interface {
 	Songs(ctx context.Context) ([]*model.Song, error)
@@ -128,6 +130,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateArtist(childComplexity, args["input"].(model.NewArtist)), true
+
+	case "Mutation.createArtists":
+		if e.complexity.Mutation.CreateArtists == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createArtists_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateArtists(childComplexity, args["input"].([]*model.NewArtist)), true
 
 	case "Mutation.createSong":
 		if e.complexity.Mutation.CreateSong == nil {
@@ -319,6 +333,7 @@ input NewArtist {
 type Mutation {
   createSong(input: NewSong!): Song!
   createArtist(input: NewArtist!): Artist!
+  createArtists(input: [NewArtist!]!): [Artist!]!
 }
 `, BuiltIn: false},
 }
@@ -335,6 +350,21 @@ func (ec *executionContext) field_Mutation_createArtist_args(ctx context.Context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNNewArtist2githubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewArtist(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createArtists_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*model.NewArtist
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewArtist2ᚕᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewArtistᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -628,6 +658,48 @@ func (ec *executionContext) _Mutation_createArtist(ctx context.Context, field gr
 	res := resTmp.(*model.Artist)
 	fc.Result = res
 	return ec.marshalNArtist2ᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐArtist(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createArtists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createArtists_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateArtists(rctx, args["input"].([]*model.NewArtist))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Artist)
+	fc.Result = res
+	return ec.marshalNArtist2ᚕᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐArtistᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_songs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2392,6 +2464,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createArtists":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createArtists(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3186,6 +3268,28 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 func (ec *executionContext) unmarshalNNewArtist2githubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewArtist(ctx context.Context, v interface{}) (model.NewArtist, error) {
 	res, err := ec.unmarshalInputNewArtist(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewArtist2ᚕᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewArtistᚄ(ctx context.Context, v interface{}) ([]*model.NewArtist, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.NewArtist, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNNewArtist2ᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewArtist(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNNewArtist2ᚖgithubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewArtist(ctx context.Context, v interface{}) (*model.NewArtist, error) {
+	res, err := ec.unmarshalInputNewArtist(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNewSong2githubᚗcomᚋZubayearᚋsongᚑqlᚋgraphᚋmodelᚐNewSong(ctx context.Context, v interface{}) (model.NewSong, error) {

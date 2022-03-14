@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"fmt"
+
 	"github.com/Zubayear/song-ql/ent"
 	"github.com/Zubayear/song-ql/graph/generated"
 	"github.com/Zubayear/song-ql/graph/model"
@@ -13,12 +14,6 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
-
-var _logger *zap.Logger
-
-func init() {
-	_logger, _ = logger.LoggerProvider()
-}
 
 func (r *mutationResolver) CreateSong(ctx context.Context, input model.NewSong) (*model.Song, error) {
 	_logger.Info("Received request for CreateSong", zap.Any("request", input))
@@ -74,6 +69,28 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArti
 		Age:  artistFromRepo.Age,
 	}
 	return artistToReturn, nil
+}
+
+func (r *mutationResolver) CreateArtists(ctx context.Context, input []*model.NewArtist) ([]*model.Artist, error) {
+	_logger.Info("Received request to create artists", zap.Any("request", input))
+	artistsToSave := make([]*ent.Artist, len(input))
+	for i, artist := range input {
+		mappedArtist := &ent.Artist{}
+		mappedArtist.Name = artist.Name
+		mappedArtist.Age = artist.Age
+		artistsToSave[i] = mappedArtist
+	}
+	artistsFromRepo, err := r.SongRepo.AddArtists(ctx, artistsToSave)
+	if err != nil {
+		return nil, err
+	}
+	artistsToReturn := make([]*model.Artist, len(artistsFromRepo))
+	for i, artist := range artistsFromRepo {
+		mappedArtist := &model.Artist{}
+		mapArtist(artist, mappedArtist)
+		artistsToReturn[i] = mappedArtist
+	}
+	return artistsToReturn, nil
 }
 
 func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
@@ -174,6 +191,11 @@ type queryResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+var _logger *zap.Logger
+
+func init() {
+	_logger, _ = logger.LoggerProvider()
+}
 func mapArtist(src *ent.Artist, dst *model.Artist) {
 	dst.ID = src.ID.String()
 	dst.Name = src.Name

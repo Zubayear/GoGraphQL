@@ -4,7 +4,6 @@ package mocks
 
 import (
 	context "context"
-	"log"
 
 	ent "github.com/Zubayear/song-ql/ent"
 	mock "github.com/stretchr/testify/mock"
@@ -40,6 +39,29 @@ func (_m *ISongRepository) AddArtist(ctx context.Context, artist *ent.Artist) (*
 	return r0, r1
 }
 
+// AddArtists provides a mock function with given fields: ctx, artists
+func (_m *ISongRepository) AddArtists(ctx context.Context, artists []*ent.Artist) ([]*ent.Artist, error) {
+	ret := _m.Called(ctx, artists)
+
+	var r0 []*ent.Artist
+	if rf, ok := ret.Get(0).(func(context.Context, []*ent.Artist) []*ent.Artist); ok {
+		r0 = rf(ctx, artists)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ent.Artist)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, []*ent.Artist) error); ok {
+		r1 = rf(ctx, artists)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // AddSongWithArtistId provides a mock function with given fields: ctx, song, artistId
 func (_m *ISongRepository) AddSongWithArtistId(ctx context.Context, song *ent.Song, artistId []uuid.UUID) (*ent.Song, error) {
 	ret := _m.Called(ctx, song, artistId)
@@ -60,17 +82,16 @@ func (_m *ISongRepository) AddSongWithArtistId(ctx context.Context, song *ent.So
 		r1 = ret.Error(1)
 	}
 
-	log.Printf("r0: %v; r1: %v", r0, r1)
 	return r0, r1
 }
 
-// GetArtistById provides a mock function with given fields: ctx, artistIds
-func (_m *ISongRepository) GetArtistById(ctx context.Context, artistIds uuid.UUID) (*ent.Artist, error) {
-	ret := _m.Called(ctx, artistIds)
+// GetArtistById provides a mock function with given fields: ctx, artistId
+func (_m *ISongRepository) GetArtistById(ctx context.Context, artistId uuid.UUID) (*ent.Artist, error) {
+	ret := _m.Called(ctx, artistId)
 
 	var r0 *ent.Artist
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *ent.Artist); ok {
-		r0 = rf(ctx, artistIds)
+		r0 = rf(ctx, artistId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ent.Artist)
@@ -79,7 +100,7 @@ func (_m *ISongRepository) GetArtistById(ctx context.Context, artistIds uuid.UUI
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, artistIds)
+		r1 = rf(ctx, artistId)
 	} else {
 		r1 = ret.Error(1)
 	}
