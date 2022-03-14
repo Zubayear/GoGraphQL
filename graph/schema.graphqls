@@ -39,4 +39,5 @@ input NewArtist {
 type Mutation {
   createSong(input: NewSong!): Song!
   createArtist(input: NewArtist!): Artist!
+  createArtists(input: [NewArtist!]!): [Artist!]!
 }

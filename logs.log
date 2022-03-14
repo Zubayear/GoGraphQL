@@ -113,3 +113,5 @@
 {"level":"info","timestamp":"2022-03-13T21:59:26.510+0600","message":"Received request for all GetSongByID","request":"85a2e86d-b8d6-4170-b949-4e6d04d0e71b"}
 {"level":"info","timestamp":"2022-03-13T21:59:26.512+0600","message":"Received request for all GetArtistsBySongID","request":"85a2e86d-b8d6-4170-b949-4e6d04d0e71b"}
 {"level":"info","timestamp":"2022-03-13T22:00:08.893+0600","message":"Received request for all GetArtistsBySongID","request":"85a2e86d-b8d6-4170-b949-4e6d04d0e71b"}
+{"level":"info","timestamp":"2022-03-14T12:17:34.383+0600","message":"Received request for all Artists"}
+{"level":"info","timestamp":"2022-03-14T12:17:34.383+0600","message":"Received request to fetch all artists from repo"}

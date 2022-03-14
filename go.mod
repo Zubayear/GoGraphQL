@@ -14,6 +14,7 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	go.uber.org/zap v1.21.0
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
 require (

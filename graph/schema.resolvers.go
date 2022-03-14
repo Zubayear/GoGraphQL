@@ -6,16 +6,22 @@ package graph
 import (
 	"context"
 	"fmt"
-
 	"github.com/Zubayear/song-ql/ent"
 	"github.com/Zubayear/song-ql/graph/generated"
 	"github.com/Zubayear/song-ql/graph/model"
+	"github.com/Zubayear/song-ql/logger"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
+var _logger *zap.Logger
+
+func init() {
+	_logger, _ = logger.LoggerProvider()
+}
+
 func (r *mutationResolver) CreateSong(ctx context.Context, input model.NewSong) (*model.Song, error) {
-	r.Logger.Info("Received request for CreateSong", zap.Any("request", input))
+	_logger.Info("Received request for CreateSong", zap.Any("request", input))
 	songToSave := &ent.Song{
 		Title:       input.Title,
 		Duration:    input.Duration,
@@ -53,7 +59,7 @@ func (r *mutationResolver) CreateSong(ctx context.Context, input model.NewSong) 
 }
 
 func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArtist) (*model.Artist, error) {
-	r.Logger.Info("Received request for CreateArtist", zap.Any("request", input))
+	_logger.Info("Received request for CreateArtist", zap.Any("request", input))
 	artistToSave := &ent.Artist{
 		Name: input.Name,
 		Age:  input.Age,
@@ -71,7 +77,7 @@ func (r *mutationResolver) CreateArtist(ctx context.Context, input model.NewArti
 }
 
 func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
-	r.Logger.Info("Received request for all songs")
+	_logger.Info("Received request for all songs")
 	songsFromRepo, err := r.SongRepo.GetSongs(ctx)
 	if err != nil {
 		return nil, err
@@ -96,7 +102,7 @@ func (r *queryResolver) Songs(ctx context.Context) ([]*model.Song, error) {
 }
 
 func (r *queryResolver) Artists(ctx context.Context) ([]*model.Artist, error) {
-	r.Logger.Info("Received request for all Artists")
+	_logger.Info("Received request for all Artists")
 	artists, err := r.SongRepo.GetArtists(ctx)
 	if err != nil {
 		return nil, err
@@ -111,7 +117,7 @@ func (r *queryResolver) Artists(ctx context.Context) ([]*model.Artist, error) {
 }
 
 func (r *queryResolver) SongByID(ctx context.Context, input string) (*model.Song, error) {
-	r.Logger.Info("Received request for all GetSongByID", zap.Any("request", input))
+	_logger.Info("Received request for all GetSongByID", zap.Any("request", input))
 	songId, err := uuid.Parse(input)
 	if err != nil {
 		return nil, fmt.Errorf("failed parsing songId: %w", err)
@@ -135,7 +141,7 @@ func (r *queryResolver) SongByID(ctx context.Context, input string) (*model.Song
 }
 
 func (r *queryResolver) ArtistsBySongID(ctx context.Context, input string) ([]*model.Artist, error) {
-	r.Logger.Info("Received request for all GetArtistsBySongID", zap.Any("request", input))
+	_logger.Info("Received request for all GetArtistsBySongID", zap.Any("request", input))
 	songId, err := uuid.Parse(input)
 	if err != nil {
 		return nil, fmt.Errorf("failed parsing songId: %w", err)
