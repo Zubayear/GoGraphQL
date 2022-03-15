@@ -22,4 +22,4 @@ di:
 
 .PHONY: mock
 mock:
-	@mockery --name=$(arg)
+	@mockery --all --keeptree

@@ -4,6 +4,7 @@ package mocks
 
 import (
 	context "context"
+	"log"
 
 	ent "github.com/Zubayear/song-ql/ent"
 	mock "github.com/stretchr/testify/mock"
@@ -33,6 +34,7 @@ func (_m *ISongRepository) AddArtist(ctx context.Context, artist *ent.Artist) (*
 	if rf, ok := ret.Get(1).(func(context.Context, *ent.Artist) error); ok {
 		r1 = rf(ctx, artist)
 	} else {
+		log.Println("4: HERE")
 		r1 = ret.Error(1)
 	}
 
